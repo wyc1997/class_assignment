@@ -14,11 +14,33 @@ var StudentSubmissionForm = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (StudentSubmissionForm.__proto__ || Object.getPrototypeOf(StudentSubmissionForm)).call(this, props));
 
-        _this.state = { value: "" };
+        var arr = [];
+        for (var i = 0; i < 13; i++) {
+            arr.push(new Array(7).fill(0));
+        }
+        _this.state = { value: "", tableData: arr };
+
+        _this.tableToggle = _this.tableToggle.bind(_this);
         return _this;
     }
 
     _createClass(StudentSubmissionForm, [{
+        key: "tableToggle",
+        value: function tableToggle(row, col) {
+            if (row < 0 || col < 0) {
+                return;
+            }
+            var listCopy = this.state.tableData;
+            if (listCopy[row][col] == 0) {
+                listCopy[row][col] = 1;
+            } else {
+                listCopy[row][col] = 0;
+            }
+            this.setState({ tableData: listCopy }, function () {
+                return console.log("hello");
+            });
+        }
+    }, {
         key: "render",
         value: function render() {
             return React.createElement(
@@ -88,6 +110,7 @@ var StudentSubmissionForm = function (_React$Component) {
                     )
                 ),
                 React.createElement("br", null),
+                React.createElement(TimeTable, { data: this.state.tableData, tableToggle: this.tableToggle }),
                 React.createElement(
                     "button",
                     null,
@@ -100,103 +123,62 @@ var StudentSubmissionForm = function (_React$Component) {
     return StudentSubmissionForm;
 }(React.Component);
 
-var TimeTable = function (_React$Component2) {
-    _inherits(TimeTable, _React$Component2);
-
-    function TimeTable(props) {
-        _classCallCheck(this, TimeTable);
-
-        return _possibleConstructorReturn(this, (TimeTable.__proto__ || Object.getPrototypeOf(TimeTable)).call(this, props));
+function Cell(props) {
+    var style;
+    if (props.cellData == 1) {
+        style = {
+            width: 50,
+            height: 80,
+            border: "1px solid black",
+            backgroundColor: "green"
+        };
+    } else {
+        style = {
+            width: 50,
+            height: 80,
+            border: "1px solid black",
+            backgroundColor: "white"
+        };
     }
 
-    _createClass(TimeTable, [{
-        key: "render",
-        value: function render() {
-            return React.createElement(
-                "div",
-                null,
-                React.createElement(
-                    "table",
-                    { style: { border: "1px solid black" } },
-                    React.createElement(
-                        "tbody",
-                        null,
-                        React.createElement(
-                            "tr",
-                            null,
-                            React.createElement(
-                                "td",
-                                null,
-                                "Date"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "8:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "9:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "10:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "11:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "12:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "13:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "14:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "15:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "16:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "17:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "18:30"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                "19:30"
-                            )
-                        )
-                    )
-                )
-            );
-        }
-    }]);
+    return React.createElement(
+        "div",
+        { style: style, key: props.col, onClick: function onClick() {
+                return props.tableToggle(props.row, props.col);
+            } },
+        props.content
+    );
+}
 
-    return TimeTable;
-}(React.Component);
+function Row(props) {
+    var list = [];
+    list.push(React.createElement(Cell, { key: -1, row: props.row, col: -1, content: props.time, tableToggle: props.tableToggle }));
+    for (var i = 0; i < 7; i++) {
+        list.push(React.createElement(Cell, { key: i, row: props.row, col: i, cellData: props.rowData[i], content: props.content[i], tableToggle: props.tableToggle }));
+    }
+    return React.createElement(
+        "div",
+        { style: { display: "flex" } },
+        list
+    );
+}
 
-ReactDOM.render(React.createElement(TimeTable, null), document.getElementById("root"));
+function TimeTable(props) {
+    var list = [];
+    for (var i = 0; i < 13; i++) {
+        var timeSlot = (i + 8).toString() + ":30";
+        list.push(React.createElement(Row, { key: i, row: i, time: timeSlot, rowData: props.data[i], content: [], tableToggle: props.tableToggle }));
+    }
+    return React.createElement(
+        "div",
+        null,
+        React.createElement(
+            "div",
+            { style: { display: "flex" } },
+            React.createElement(Row, { row: -1, rowData: [], time: "Time", content: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], tableToggle: props.tableToggle })
+        ),
+        list
+    );
+}
+
+ReactDOM.render(React.createElement(StudentSubmissionForm, null), document.getElementById("root"));
