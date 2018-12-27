@@ -18,13 +18,34 @@ var StudentSubmissionForm = function (_React$Component) {
         for (var i = 0; i < 13; i++) {
             arr.push(new Array(7).fill(0));
         }
-        _this.state = { value: "", tableData: arr };
+        _this.state = { value: "", tableData: arr, isMouseDown: false };
 
         _this.tableToggle = _this.tableToggle.bind(_this);
+        _this.mouseDown = _this.mouseDown.bind(_this);
+        _this.mouseOver = _this.mouseOver.bind(_this);
+        _this.mouseUp = _this.mouseUp.bind(_this);
         return _this;
     }
 
     _createClass(StudentSubmissionForm, [{
+        key: "mouseDown",
+        value: function mouseDown(row, col) {
+            this.setState({ isMouseDown: true });
+            this.tableToggle(row, col);
+        }
+    }, {
+        key: "mouseOver",
+        value: function mouseOver(row, col) {
+            if (this.state.isMouseDown) {
+                this.tableToggle(row, col);
+            }
+        }
+    }, {
+        key: "mouseUp",
+        value: function mouseUp() {
+            this.setState({ isMouseDown: false });
+        }
+    }, {
         key: "tableToggle",
         value: function tableToggle(row, col) {
             if (row < 0 || col < 0) {
@@ -110,7 +131,12 @@ var StudentSubmissionForm = function (_React$Component) {
                     )
                 ),
                 React.createElement("br", null),
-                React.createElement(TimeTable, { data: this.state.tableData, tableToggle: this.tableToggle }),
+                React.createElement(
+                    "div",
+                    null,
+                    "Click and drag to toggle available time slot for classes"
+                ),
+                React.createElement(TimeTable, { data: this.state.tableData, mouseDown: this.mouseDown, mouseOver: this.mouseOver, mouseUp: this.mouseUp }),
                 React.createElement(
                     "button",
                     null,
@@ -125,6 +151,7 @@ var StudentSubmissionForm = function (_React$Component) {
 
 function Cell(props) {
     var style;
+    var check;
     if (props.cellData == 1) {
         style = {
             width: 50,
@@ -143,8 +170,12 @@ function Cell(props) {
 
     return React.createElement(
         "div",
-        { style: style, key: props.col, onClick: function onClick() {
-                return props.tableToggle(props.row, props.col);
+        { style: style, key: props.col, onMouseDown: function onMouseDown() {
+                return props.mouseDown(props.row, props.col);
+            }, onMouseOver: function onMouseOver() {
+                return props.mouseOver(props.row, props.col);
+            }, onMouseUp: function onMouseUp() {
+                return props.mouseUp();
             } },
         props.content
     );
@@ -152,9 +183,9 @@ function Cell(props) {
 
 function Row(props) {
     var list = [];
-    list.push(React.createElement(Cell, { key: -1, row: props.row, col: -1, content: props.time, tableToggle: props.tableToggle }));
+    list.push(React.createElement(Cell, { key: -1, row: props.row, col: -1, content: props.time, mouseDown: props.mouseDown, mouseOver: props.mouseOver, mouseUp: props.mouseUp }));
     for (var i = 0; i < 7; i++) {
-        list.push(React.createElement(Cell, { key: i, row: props.row, col: i, cellData: props.rowData[i], content: props.content[i], tableToggle: props.tableToggle }));
+        list.push(React.createElement(Cell, { key: i, row: props.row, col: i, cellData: props.rowData[i], content: props.content[i], mouseDown: props.mouseDown, mouseOver: props.mouseOver, mouseUp: props.mouseUp }));
     }
     return React.createElement(
         "div",
@@ -167,7 +198,7 @@ function TimeTable(props) {
     var list = [];
     for (var i = 0; i < 13; i++) {
         var timeSlot = (i + 8).toString() + ":30";
-        list.push(React.createElement(Row, { key: i, row: i, time: timeSlot, rowData: props.data[i], content: [], tableToggle: props.tableToggle }));
+        list.push(React.createElement(Row, { key: i, row: i, time: timeSlot, rowData: props.data[i], content: [], mouseDown: props.mouseDown, mouseOver: props.mouseOver, mouseUp: props.mouseUp }));
     }
     return React.createElement(
         "div",
@@ -175,7 +206,7 @@ function TimeTable(props) {
         React.createElement(
             "div",
             { style: { display: "flex" } },
-            React.createElement(Row, { row: -1, rowData: [], time: "Time", content: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], tableToggle: props.tableToggle })
+            React.createElement(Row, { row: -1, rowData: [], time: "Time", content: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], mouseDown: props.mouseDown, mouseOver: props.mouseOver, mouseUp: props.mouseUp })
         ),
         list
     );
