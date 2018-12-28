@@ -8,8 +8,8 @@ class StudentSubmissionForm extends React.Component
         {
             arr.push(new Array(7).fill(0))
         }
-        this.state={value:"", tableData:arr, isMouseDown:false}
-        
+        this.state={value:"", tableData:arr, isMouseDown:false, numClass:"", teacher:"Teacher 1", subject:"Reading",location:"location 1"}
+        this.changeHandler=this.changeHandler.bind(this)
         this.tableToggle=this.tableToggle.bind(this)
         this.mouseDown=this.mouseDown.bind(this)
         this.mouseOver=this.mouseOver.bind(this)
@@ -21,6 +21,7 @@ class StudentSubmissionForm extends React.Component
         this.setState({isMouseDown:true})
         this.tableToggle(row,col)
     }
+
     mouseOver(row, col)
     {
         if (this.state.isMouseDown)
@@ -28,10 +29,12 @@ class StudentSubmissionForm extends React.Component
             this.tableToggle(row,col)
         }
     }
+
     mouseUp()
     {
         this.setState({isMouseDown:false})
     }
+
     tableToggle(row, col)
     {
         if (row < 0 || col < 0)
@@ -47,31 +50,81 @@ class StudentSubmissionForm extends React.Component
         {
             listCopy[row][col]=0
         }
-        this.setState({tableData:listCopy}, ()=>console.log("hello"))
+        this.setState({tableData:listCopy})
     }
+
+    changeHandler(event)
+    {
+        this.setState({[event.target.name]:event.target.value},()=>console.log(this.state))
+    }
+
     render()
     {
+        let pickedTime = []
+        pickedTime.push({day:"None",time:""})
+        for (var i = 0; i < 13; i++)
+        {
+            for (var j = 0; j<7; j++)
+            {
+                var _day
+                switch (j) {
+                    case 0:
+                        _day="MON"
+                        break;
+                    case 1:
+                        _day="TUE"
+                        break;
+                    case 2:
+                        _day="WED"
+                        break;
+                    case 3:
+                        _day="THU"
+                        break;
+                    case 4:
+                        _day="FRI"
+                        break;
+                    case 5:
+                        _day="SAT"
+                        break;
+                    case 6:
+                        _day="SUN"
+                        break;
+                }
+                if (this.state.tableData[i][j])
+                {
+                    pickedTime.push({day:_day,time:((i+8).toString()+":30")})
+                }
+            }
+        }
+        console.log(pickedTime)
+        var preferredTimeSelect=[]
+        for (var i = 0; i < this.state.numClass; i++)
+        {
+            preferredTimeSelect.push(<select name={"preferredTime"+i} key={i} onChange={()=>this.changeHandler(event)}>{pickedTime.map((item,index)=><option key={index}>{item.day} {item.time}</option>)}</select>)
+        }
         return (<div>
             <div>number of classes</div>
-            <input/>
+            <input name="numClass" value={this.state.numClass} onChange={()=>this.changeHandler(event)}/>
             <div>Teacher:</div>
-            <select>
+            <select name="teacher" value={this.state.teacher} onChange={()=>this.changeHandler(event)}>
                 <option>Teacher 1</option>
                 <option>Teacher 2</option>
             </select>
             <div>Subject:</div>
-            <select>
+            <select nmae="subject" value={this.state.subject} onChange={()=>this.changeHandler(event)} >
                 <option>Reading</option>
                 <option>Grammar</option>
             </select>
             <div>Location</div>
-            <select>
+            <select name="location" value={this.state.location} onChange={()=>this.changeHandler(event)} >
                 <option>location 1</option>
                 <option>location 2</option>
             </select>
             <br/>
             <div>Click and drag to toggle available time slot for classes</div>
             <TimeTable data={this.state.tableData} mouseDown={this.mouseDown} mouseOver={this.mouseOver} mouseUp={this.mouseUp} />
+            <div>pick your preferred time:</div>
+            {preferredTimeSelect}
             <button>Submit</button>
             </div>)
     }
@@ -85,7 +138,7 @@ function Cell(props)
     {
         style = {
             width:50,
-            height:80,
+            height:30,
             border:"1px solid black",
             backgroundColor:"green"
         }
@@ -94,7 +147,7 @@ function Cell(props)
     {
         style = {
             width:50,
-            height:80,
+            height:30,
             border:"1px solid black",
             backgroundColor:"white"
         }
